@@ -1,0 +1,54 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Athlete {
+  id           Int        @id // Strava athlete ID
+  username     String?
+  firstname    String?
+  lastname     String?
+  profile      String?
+  accessToken  String
+  refreshToken String
+  expiresAt    Int // OAuth expiry timestamp
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Activity {
+  id                 String   @id // Strava activity ID
+  athleteId          Int
+  athlete            Athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  name               String
+  distance           Float // In meters
+  movingTime         Int // In seconds
+  elapsedTime        Int // In seconds
+  totalElevationGain Float // In meters
+  type               String // e.g., "Run"
+  startDate          DateTime
+  startDateLocal     DateTime
+  timezone           String
+  averageSpeed       Float // In m/s
+  maxSpeed           Float // In m/s
+  averageCadence     Float?
+  averageHeartrate   Float?
+  maxHeartrate       Float?
+  calories           Float?
+  relativeEffort     Int? // Suffer score
+  prCount            Int      @default(0)
+  effortCount        Int      @default(0)
+  deviceName         String?
+  mapPolyline        String? // Encoded polyline
+  rawData            String // JSON string of raw data
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([athleteId])
+  @@index([startDate])
+}
