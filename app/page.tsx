@@ -10,7 +10,7 @@ import Predictions from '@/components/dashboard/Predictions';
 import ActivityHeatmap from '@/components/dashboard/ActivityHeatmap';
 import RecentActivities from '@/components/dashboard/RecentActivities';
 import { ActivityData, FitnessDay, BestEffort, Prediction } from '@/lib/strava-calculations';
-import { Flame, ShieldAlert, KeyRound, ExternalLink } from 'lucide-react';
+import { Flame, ShieldAlert, KeyRound, ExternalLink, ArrowRight } from 'lucide-react';
 
 interface Athlete {
   id: number;
@@ -138,10 +138,12 @@ export default function DashboardHome() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
-        <div className="h-10 w-10 border-4 border-volt border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(210,255,0,0.3)]" />
-        <p className="text-xs font-mono text-slate-text uppercase tracking-widest animate-pulse">Syncing Engine Telemetry...</p>
-        {errorMsg && <p className="text-[10px] text-red-500">{errorMsg}</p>}
+      <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center space-y-4">
+        <div className="h-8 w-8 border-2 border-accent-warm border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs font-mono text-text-muted tracking-wider">
+          Loading performance data…
+        </p>
+        {errorMsg && <p className="text-[10px] text-accent-danger">{errorMsg}</p>}
       </div>
     );
   }
@@ -149,11 +151,7 @@ export default function DashboardHome() {
   const showDashboard = athlete && metrics && (metrics.recentActivities.length > 0 || isDemo);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-volt selection:text-black">
-      {/* Background neon glows */}
-      <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] radial-glow-volt pointer-events-none z-[-1]" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] radial-glow-orange pointer-events-none z-[-1]" />
-
+    <div className="min-h-screen flex flex-col bg-bg-primary">
       <DashboardHeader
         athlete={athlete}
         isDemo={isDemo}
@@ -166,62 +164,62 @@ export default function DashboardHome() {
         
         {/* Landing Screen / Disconnected State Promo Card */}
         {(!showDashboard || (athlete?.id === 0 && isDemo)) && (
-          <section className="chrono-card p-8 md:p-12 rounded-lg text-center max-w-2xl mx-auto my-12 relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-32 h-32 radial-glow-orange opacity-40 pointer-events-none" />
-            
-            <div className="inline-flex items-center justify-center p-3 rounded-full bg-orange/10 border border-orange/20 text-orange mb-6 shadow-[0_0_15px_rgba(255,75,0,0.2)]">
+          <section className="dash-card p-8 md:p-12 text-center max-w-2xl mx-auto my-12 relative">
+            <div className="inline-flex items-center justify-center p-3 rounded-full bg-accent-warm-muted border border-accent-warm/20 text-accent-warm mb-6">
               <Flame className="h-6 w-6" />
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white uppercase">
-              YOUR CARDIO PERFORMANCE.<br />
-              <span className="text-volt">DECIPHERED.</span>
+            <h2 className="font-display text-2xl md:text-3xl text-text-primary">
+              Your running performance,
+              <br />
+              <span className="text-accent-warm">decoded.</span>
             </h2>
             
-            <p className="text-xs text-slate-text mt-4 max-w-md mx-auto leading-relaxed">
+            <p className="text-sm text-text-secondary mt-4 max-w-md mx-auto leading-relaxed">
               Unlock elite-level running analytics: fitness progression curves, polarized heart-rate zone ratios, race finish-time predictions, and consistency profiling.
             </p>
 
             {/* Connection Actions */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               {oauthUrl ? (
                 <a
                   href={oauthUrl}
-                  className="w-full sm:w-auto px-6 py-3 rounded bg-orange hover:bg-orange-600 font-mono font-bold text-xs text-white tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(255,75,0,0.4)] flex items-center justify-center space-x-2"
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg bg-accent-warm hover:bg-accent-warm/90 font-mono font-semibold text-xs text-text-inverse tracking-wide transition-all flex items-center justify-center space-x-2"
                 >
-                  <span>CONNECT WITH STRAVA</span>
+                  <span>Connect with Strava</span>
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               ) : (
-                <div className="w-full sm:w-auto px-6 py-3 rounded bg-white/5 border border-red-500/20 text-red-400 font-mono text-[11px] tracking-wide flex items-center space-x-2">
+                <div className="w-full sm:w-auto px-6 py-3 rounded-lg bg-accent-danger/10 border border-accent-danger/20 text-accent-danger font-mono text-[11px] tracking-wide flex items-center space-x-2">
                   <ShieldAlert className="h-4 w-4" />
-                  <span>SERVER API KEYS MISSING</span>
+                  <span>Server API keys missing</span>
                 </div>
               )}
 
               <button
                 onClick={() => fetchDashboardData(true)}
-                className="w-full sm:w-auto px-6 py-3 rounded border border-white/10 hover:border-volt/30 text-white font-mono hover:text-volt hover:bg-volt/5 transition-all text-xs tracking-wider"
+                className="w-full sm:w-auto px-6 py-3 rounded-lg border border-border-primary hover:border-border-hover text-text-secondary hover:text-accent-warm transition-all text-xs font-mono tracking-wide flex items-center justify-center space-x-2"
               >
-                EXPLORE DEMO SANDBOX
+                <span>Explore Demo</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
 
             {/* Info panel if server keys are missing */}
             {!isOauthConfigured && (
-              <div className="mt-8 border border-white/5 bg-white/[0.01] p-4 rounded text-left text-[11px] font-mono text-slate-text space-y-2">
-                <div className="flex items-center space-x-2 text-volt">
+              <div className="mt-8 border border-border-primary bg-bg-elevated p-4 rounded-lg text-left text-[11px] font-mono text-text-secondary space-y-2">
+                <div className="flex items-center space-x-2 text-accent-cool">
                   <KeyRound className="h-4 w-4" />
-                  <span className="font-bold uppercase">Public Repository Setup Instructions</span>
+                  <span className="font-bold">Setup Instructions</span>
                 </div>
                 <p className="leading-relaxed">
-                  To sync your own runs, copy <code className="text-white bg-white/5 px-1 py-0.5 rounded">.env.example</code> to <code className="text-white bg-white/5 px-1 py-0.5 rounded">.env</code> and fill in your <strong className="text-white">STRAVA_CLIENT_ID</strong> and <strong className="text-white">STRAVA_CLIENT_SECRET</strong> from the Strava developer site.
+                  To sync your own runs, copy <code className="text-text-primary bg-bg-card px-1 py-0.5 rounded">. env.example</code> to <code className="text-text-primary bg-bg-card px-1 py-0.5 rounded">.env</code> and fill in your <strong className="text-text-primary">STRAVA_CLIENT_ID</strong> and <strong className="text-text-primary">STRAVA_CLIENT_SECRET</strong> from the Strava developer site.
                 </p>
                 <a 
                   href="https://www.strava.com/settings/api" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-volt hover:underline flex items-center gap-1 mt-1 text-[10px]"
+                  className="text-accent-warm hover:underline flex items-center gap-1 mt-1 text-[10px]"
                 >
                   <span>Register Strava API App</span>
                   <ExternalLink className="h-3 w-3" />
@@ -233,21 +231,21 @@ export default function DashboardHome() {
 
         {/* Dashboard Grid View */}
         {showDashboard && metrics && (
-          <div className="space-y-8 animate-[fadeIn_0.5s_ease-out]">
+          <div className="space-y-8 animate-stagger">
             
             {/* Demo Header Notification Banner */}
             {isDemo && (
-              <div className="bg-volt/10 border border-volt/20 text-volt px-4 py-3 rounded flex items-center justify-between text-xs font-mono">
+              <div className="bg-accent-warm-muted border border-accent-warm/20 text-accent-warm px-4 py-3 rounded-lg flex items-center justify-between text-xs font-mono">
                 <div className="flex items-center space-x-2">
-                  <Flame className="h-4 w-4 animate-pulse" />
-                  <span>Sandbox Mode active: Reviewing synthetic telemetry. Connect with Strava to view your personal logs.</span>
+                  <Flame className="h-4 w-4" />
+                  <span>Demo mode — viewing synthetic data. Connect Strava for your personal analytics.</span>
                 </div>
                 {oauthUrl && (
                   <a
                     href={oauthUrl}
-                    className="underline hover:text-white font-bold ml-4 whitespace-nowrap"
+                    className="underline hover:text-text-primary font-semibold ml-4 whitespace-nowrap"
                   >
-                    CONNECT ACCOUNT
+                    Connect
                   </a>
                 )}
               </div>
@@ -290,9 +288,9 @@ export default function DashboardHome() {
         )}
       </main>
 
-      <footer className="border-t border-white/5 bg-black/60 py-6 text-center text-[10px] font-mono text-slate-text select-none">
-        <p className="tracking-wide">STRAVADASH // CHRONO ENGINE // POWERED BY NEXT.JS & PRISMA</p>
-        <p className="mt-1 text-slate-text/50">All calculations conform to physiological running models.</p>
+      <footer className="border-t border-border-primary bg-bg-card/60 py-6 text-center text-[10px] font-mono text-text-muted select-none">
+        <p className="tracking-wide">StravaDash — Built with Next.js & Prisma</p>
+        <p className="mt-1 text-text-muted/50">All calculations conform to physiological running models.</p>
       </footer>
     </div>
   );

@@ -1,28 +1,32 @@
 import type { Metadata } from 'next';
-import { Outfit, Share_Tech_Mono, Inter } from 'next/font/google';
+import { DM_Serif_Display, DM_Sans, Geist_Mono } from 'next/font/google';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
-const fontOutfit = Outfit({
-  variable: '--font-outfit',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-});
-
-const fontShareTechMono = Share_Tech_Mono({
-  variable: '--font-share-tech-mono',
+const fontDisplay = DM_Serif_Display({
+  variable: '--font-dm-serif',
   subsets: ['latin'],
   weight: ['400'],
+  display: 'swap',
 });
 
-const fontInter = Inter({
-  variable: '--font-inter',
+const fontSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
+
+const fontMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'StravaDash // Premium Running Performance Hub',
-  description: 'Pro-grade athletic performance analytics, fitness load curves, polarized heart-rate zone distributions, and finish-time predictions.',
+  title: 'StravaDash — Running Performance Analytics',
+  description: 'Premium running performance analytics: fitness load curves, polarized heart-rate zone distributions, and finish-time predictions powered by your Strava data.',
 };
 
 export default function RootLayout({
@@ -35,11 +39,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fontOutfit.variable} ${fontShareTechMono.variable} ${fontInter.variable} h-full antialiased`}
+      data-theme="dark"
+      className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans select-none antialiased">
-        {children}
-        {analytics}
+        <ThemeProvider>
+          {children}
+          {analytics}
+        </ThemeProvider>
       </body>
     </html>
   );

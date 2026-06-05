@@ -18,11 +18,11 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
 
   const zoneKeys = ['z1', 'z2', 'z3', 'z4', 'z5'] as const;
   const zoneColors = {
-    z1: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]',
-    z2: 'bg-volt shadow-[0_0_8px_rgba(210,255,0,0.4)]',
-    z3: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]',
-    z4: 'bg-orange shadow-[0_0_8px_rgba(255,75,0,0.4)]',
-    z5: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]',
+    z1: 'bg-accent-emerald',
+    z2: 'bg-accent-cool',
+    z3: 'bg-accent-amber',
+    z4: 'bg-accent-warm',
+    z5: 'bg-accent-danger',
   };
 
   // Evaluate Polarization Ratio: (Z1 + Z2) / Total
@@ -57,13 +57,13 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
   return (
     <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Time in Zones */}
-      <div className="chrono-card md:col-span-2 p-6 rounded-lg">
-        <h2 className="text-sm font-extrabold tracking-widest text-white uppercase mb-6 flex items-center gap-2">
-          Heart Rate Training Distribution <span className="text-[10px] font-mono text-slate-text bg-white/5 border border-white/10 px-1.5 py-0.5 rounded tracking-normal">POLARIZED ZONES</span>
+      <div className="dash-card md:col-span-2 p-6">
+        <h2 className="section-title mb-6 flex items-center gap-2">
+          Heart Rate Zones <span className="badge">Polarized</span>
         </h2>
 
         {totalSeconds === 0 ? (
-          <div className="h-48 flex items-center justify-center text-xs text-slate-text font-mono uppercase">
+          <div className="h-48 flex items-center justify-center text-xs text-text-muted font-mono">
             No heart-rate training records found
           </div>
         ) : (
@@ -77,16 +77,16 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
                 <div key={key} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <div className="flex items-baseline space-x-2">
-                      <span className="text-white font-bold uppercase">{key}</span>
-                      <span className="text-slate-text text-[10px]">({zoneInfo.min}-{zoneInfo.max} bpm)</span>
-                      <span className="text-slate-text/70">{zoneInfo.name}</span>
+                      <span className="text-text-primary font-bold uppercase">{key}</span>
+                      <span className="text-text-muted text-[10px]">({zoneInfo.min}-{zoneInfo.max} bpm)</span>
+                      <span className="text-text-secondary/70">{zoneInfo.name}</span>
                     </div>
                     <div className="flex items-baseline space-x-2">
-                      <span className="text-white">{formatDuration(duration)}</span>
-                      <span className="text-slate-text font-bold text-[10px]">{pct}%</span>
+                      <span className="text-text-primary">{formatDuration(duration)}</span>
+                      <span className="text-text-muted font-bold text-[10px]">{pct}%</span>
                     </div>
                   </div>
-                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                  <div className="progress-track h-2">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${zoneColors[key]}`}
                       style={{ width: `${pct}%` }}
@@ -100,54 +100,54 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
       </div>
 
       {/* Polarized Analysis Panel */}
-      <div className="chrono-card p-6 rounded-lg flex flex-col justify-between">
+      <div className="dash-card p-6 flex flex-col justify-between">
         <div>
-          <div className="flex items-center space-x-2 text-slate-text mb-4">
-            <BrainCircuit className="h-4.5 w-4.5 text-volt" />
-            <span className="text-xs font-mono uppercase tracking-wider">Base Fitness Index</span>
+          <div className="flex items-center space-x-2 text-text-secondary mb-4">
+            <BrainCircuit className="h-4 w-4 text-accent-cool" />
+            <span className="text-xs font-mono tracking-wide">Base Fitness Index</span>
           </div>
 
           <div className="flex items-baseline space-x-1.5 mb-2">
-            <span className="text-5xl font-mono font-bold text-white">{polarizedRatio}%</span>
-            <span className="text-slate-text font-mono text-xs">base load</span>
+            <span className="text-5xl font-mono font-bold text-text-primary">{polarizedRatio}%</span>
+            <span className="text-text-muted font-mono text-xs">base load</span>
           </div>
 
-          <div className="text-xs font-mono text-slate-text mt-4">
+          <div className="text-xs font-mono text-text-secondary mt-4">
             {feedback.state === 'optimal' && (
-              <div className="flex items-start space-x-2 text-volt bg-volt/5 border border-volt/10 p-3 rounded">
-                <CheckCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+              <div className="flex items-start space-x-2 text-accent-cool bg-accent-cool-muted border border-accent-cool/15 p-3 rounded-lg">
+                <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-[11px] uppercase">{feedback.label}</p>
-                  <p className="text-[10px] mt-1 leading-relaxed text-slate-300">{feedback.text}</p>
+                  <p className="font-semibold text-[11px]">{feedback.label}</p>
+                  <p className="text-[10px] mt-1 leading-relaxed text-text-secondary">{feedback.text}</p>
                 </div>
               </div>
             )}
             {feedback.state === 'good' && (
-              <div className="flex items-start space-x-2 text-amber-400 bg-amber-400/5 border border-amber-400/10 p-3 rounded">
-                <CheckCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+              <div className="flex items-start space-x-2 text-accent-amber bg-accent-amber/5 border border-accent-amber/15 p-3 rounded-lg">
+                <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-[11px] uppercase">{feedback.label}</p>
-                  <p className="text-[10px] mt-1 leading-relaxed text-slate-300">{feedback.text}</p>
+                  <p className="font-semibold text-[11px]">{feedback.label}</p>
+                  <p className="text-[10px] mt-1 leading-relaxed text-text-secondary">{feedback.text}</p>
                 </div>
               </div>
             )}
             {feedback.state === 'overload' && (
-              <div className="flex items-start space-x-2 text-orange bg-orange/5 border border-orange/10 p-3 rounded">
-                <ShieldAlert className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+              <div className="flex items-start space-x-2 text-accent-warm bg-accent-warm-muted border border-accent-warm/15 p-3 rounded-lg">
+                <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-[11px] uppercase">{feedback.label}</p>
-                  <p className="text-[10px] mt-1 leading-relaxed text-slate-300">{feedback.text}</p>
+                  <p className="font-semibold text-[11px]">{feedback.label}</p>
+                  <p className="text-[10px] mt-1 leading-relaxed text-text-secondary">{feedback.text}</p>
                 </div>
               </div>
             )}
             {feedback.state === 'none' && (
-              <p className="text-slate-500 text-[10px]">Add workout heart rate files to compute polarised indices.</p>
+              <p className="text-text-muted text-[10px]">Add workout heart rate files to compute polarised indices.</p>
             )}
           </div>
         </div>
 
-        <div className="text-[10px] text-slate-text font-mono border-t border-white/5 pt-4">
-          <p className="uppercase font-bold mb-1">PRO ATHLETICS TIP:</p>
+        <div className="text-[10px] text-text-muted font-mono border-t border-border-primary pt-4">
+          <p className="font-semibold mb-1">Pro Tip</p>
           <p className="leading-relaxed">Keep Z1/Z2 easy volume high to expand mitochondial density. Avoid running at tempo speed on rest days.</p>
         </div>
       </div>

@@ -54,27 +54,28 @@ export default function ActivityHeatmap({ activities }: ActivityHeatmapProps) {
 
   // Helper for color intensity scaling
   const getColorClass = (meters: number) => {
-    if (meters === 0) return 'bg-white/[0.03] border border-white/[0.01] hover:bg-white/10';
-    if (meters < 5000) return 'bg-orange/20 border border-orange/10 shadow-[0_0_4px_rgba(255,75,0,0.1)] hover:bg-orange/30';
-    if (meters < 10000) return 'bg-orange/50 border border-orange/20 shadow-[0_0_6px_rgba(255,75,0,0.2)] hover:bg-orange/60';
-    if (meters < 15000) return 'bg-volt/40 border border-volt/20 shadow-[0_0_6px_rgba(210,255,0,0.2)] hover:bg-volt/50';
-    return 'bg-volt border border-volt/40 shadow-[0_0_8px_rgba(210,255,0,0.4)] hover:bg-volt/90';
+    if (meters === 0) return 'bg-bg-elevated border border-border-subtle hover:bg-bg-card-hover';
+    if (meters < 5000) return 'bg-accent-warm/20 border border-accent-warm/10 hover:bg-accent-warm/30';
+    if (meters < 10000) return 'bg-accent-warm/40 border border-accent-warm/20 hover:bg-accent-warm/50';
+    if (meters < 15000) return 'bg-accent-cool/40 border border-accent-cool/20 hover:bg-accent-cool/50';
+    return 'bg-accent-cool border border-accent-cool/40 hover:bg-accent-cool/90';
   };
 
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="chrono-card p-6 rounded-lg">
+    <div className="dash-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-extrabold tracking-widest text-white uppercase flex items-center gap-2">
-          Weekly Consistency Matrix <span className="text-[10px] font-mono text-slate-text bg-white/5 border border-white/10 px-1.5 py-0.5 rounded tracking-normal">DAILY FREQUENCY</span>
+        <h2 className="section-title flex items-center gap-3">
+          Weekly Consistency Matrix
+          <span className="badge">DAILY FREQUENCY</span>
         </h2>
-        <CalendarRange className="h-4.5 w-4.5 text-orange" />
+        <CalendarRange className="h-4.5 w-4.5 text-accent-warm" />
       </div>
 
       <div className="flex items-start space-x-3 overflow-x-auto pb-2 scrollbar-thin">
         {/* Weekdays indicator */}
-        <div className="grid grid-rows-7 gap-1.5 text-[8px] font-mono text-slate-text/70 pt-5 pr-1 select-none">
+        <div className="grid grid-rows-7 gap-1.5 text-[8px] font-mono text-text-muted pt-5 pr-1 select-none">
           {weekdays.map((day, idx) => (
             <div key={day} className="h-3 w-5 flex items-center justify-start">
               {idx % 2 === 1 ? day : ''}
@@ -92,7 +93,7 @@ export default function ActivityHeatmap({ activities }: ActivityHeatmapProps) {
             return (
               <div key={wIdx} className="flex flex-col space-y-1.5 relative">
                 {/* Month label */}
-                <div className="h-4 text-[8px] font-mono text-slate-text/60 absolute -top-5 left-0 whitespace-nowrap">
+                <div className="h-4 text-[8px] font-mono text-text-muted absolute -top-5 left-0 whitespace-nowrap">
                   {showMonth ? monthLabel : ''}
                 </div>
 
@@ -114,15 +115,15 @@ export default function ActivityHeatmap({ activities }: ActivityHeatmapProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-between mt-4 text-[9px] font-mono text-slate-text border-t border-white/5 pt-4">
+      <div className="flex items-center justify-between mt-4 text-[9px] font-mono text-text-muted border-t border-border-subtle pt-4">
         <span>Showing training occurrences over the last 18 weeks</span>
         <div className="flex items-center space-x-1.5">
           <span>Less</span>
-          <div className="h-2.5 w-2.5 rounded bg-white/[0.03]" />
-          <div className="h-2.5 w-2.5 rounded bg-orange/20" />
-          <div className="h-2.5 w-2.5 rounded bg-orange/50" />
-          <div className="h-2.5 w-2.5 rounded bg-volt/40" />
-          <div className="h-2.5 w-2.5 rounded bg-volt" />
+          <div className="h-2.5 w-2.5 rounded bg-bg-elevated border border-border-subtle" />
+          <div className="h-2.5 w-2.5 rounded bg-accent-warm/20" />
+          <div className="h-2.5 w-2.5 rounded bg-accent-warm/40" />
+          <div className="h-2.5 w-2.5 rounded bg-accent-cool/40" />
+          <div className="h-2.5 w-2.5 rounded bg-accent-cool" />
           <span>More</span>
         </div>
       </div>
