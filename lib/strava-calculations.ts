@@ -12,6 +12,7 @@ export interface ActivityData {
   averageHeartrate?: number | null;
   maxHeartrate?: number | null;
   relativeEffort?: number | null; // Suffer Score
+  rawData?: string;
 }
 
 // Convert m/s to Pace (min/km)
@@ -123,11 +124,44 @@ export function extractBestEfforts(activities: ActivityData[]): Record<string, B
   const runs = activities.filter(a => a.type === 'Run');
 
   runs.forEach(run => {
+    // Check if we have official Strava best_efforts inside the raw data
+    interface StravaBestEffort {
+      name: string;
+      elapsed_time: number;
+      moving_time: number;
+    }
+    let officialBestEfforts: StravaBestEffort[] = [];
+    if (run.rawData) {
+      try {
+        const parsed = JSON.parse(run.rawData);
+        if (Array.isArray(parsed.best_efforts)) {
+          officialBestEfforts = parsed.best_efforts;
+        }
+      } catch { {} }
+    }
+
     targets.forEach(target => {
-      // If the activity distance is equal to or slightly larger than target distance
-      if (run.distance >= target.meters) {
-        // Estimate the time for the exact distance using the run's average pace
-        // This is a summary approximation when exact streams are not cached
+      // Look for a matching official best effort first
+      const official = officialBestEfforts.find(
+        e => e.name.toLowerCase() === target.label.toLowerCase()
+      );
+
+      if (official) {
+        const timeSeconds = official.elapsed_time || official.moving_time;
+        const currentBest = bests[target.label];
+        if (!currentBest || timeSeconds < currentBest.timeSeconds) {
+          bests[target.label] = {
+            distanceLabel: target.label,
+            distanceMeters: target.meters,
+            timeSeconds,
+            paceMps: target.meters / timeSeconds,
+            activityName: run.name,
+            activityId: run.id,
+            date: new Date(run.startDate),
+          };
+        }
+      } else if (run.distance >= target.meters) {
+        // Fallback to average pace estimation
         const estimatedTime = (target.meters / run.distance) * run.movingTime;
         const currentBest = bests[target.label];
 

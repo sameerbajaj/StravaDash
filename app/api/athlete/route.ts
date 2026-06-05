@@ -157,6 +157,7 @@ export async function GET(request: NextRequest) {
       averageHeartrate: act.averageHeartrate,
       maxHeartrate: act.maxHeartrate,
       relativeEffort: act.relativeEffort,
+      rawData: act.rawData,
     }));
 
     const bestEfforts = extractBestEfforts(activities);

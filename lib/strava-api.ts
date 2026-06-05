@@ -201,5 +201,48 @@ export async function syncActivities(athleteId: number): Promise<{ syncedCount: 
     }
   }
 
+  // Harvest official detailed best efforts for top 15 fastest runs in the background
+  try {
+    const candidateRuns = await db.activity.findMany({
+      where: {
+        athleteId,
+        type: 'Run',
+        NOT: {
+          rawData: {
+            contains: '"best_efforts"',
+          },
+        },
+      },
+      orderBy: {
+        averageSpeed: 'desc',
+      },
+      take: 15,
+    });
+
+    for (const run of candidateRuns) {
+      // 500ms delay to respect Strava API limits
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const detailRes = await fetch(`https://www.strava.com/api/v3/activities/${run.id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (detailRes.ok) {
+        const detailData = await detailRes.json();
+        await db.activity.update({
+          where: { id: run.id },
+          data: {
+            rawData: JSON.stringify(detailData),
+            mapPolyline: detailData.map?.polyline || detailData.map?.summary_polyline || run.mapPolyline,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error harvesting detailed best efforts:', err);
+  }
+
   return { syncedCount };
 }
