@@ -55,9 +55,9 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
   const feedback = getPolarizationFeedback(polarizedRatio);
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
       {/* Time in Zones */}
-      <div className="dash-card md:col-span-2 p-6">
+      <div className="dash-card md:col-span-3 p-6">
         <h2 className="section-title mb-6 flex items-center gap-2">
           Heart Rate Zones <span className="badge">Polarized</span>
         </h2>
@@ -79,7 +79,7 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
                     <div className="flex items-baseline space-x-2">
                       <span className="text-text-primary font-bold uppercase">{key}</span>
                       <span className="text-text-muted text-[10px]">({zoneInfo.min}-{zoneInfo.max} bpm)</span>
-                      <span className="text-text-secondary/70">{zoneInfo.name}</span>
+                      <span className="text-text-secondary/70 hidden sm:inline">{zoneInfo.name}</span>
                     </div>
                     <div className="flex items-baseline space-x-2">
                       <span className="text-text-primary">{formatDuration(duration)}</span>
@@ -100,7 +100,7 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
       </div>
 
       {/* Polarized Analysis Panel */}
-      <div className="dash-card p-6 flex flex-col justify-between">
+      <div className="dash-card md:col-span-2 p-6 flex flex-col justify-between">
         <div>
           <div className="flex items-center space-x-2 text-text-secondary mb-4">
             <BrainCircuit className="h-4 w-4 text-accent-cool" />
@@ -146,11 +146,11 @@ export default function TrainingZones({ hrDistribution, maxHR = 190 }: TrainingZ
           </div>
         </div>
 
-        <div className="text-[10px] text-text-muted font-mono border-t border-border-primary pt-4">
+        <div className="text-[10px] text-text-muted font-mono border-t border-border-primary pt-4 mt-4">
           <p className="font-semibold mb-1">Pro Tip</p>
           <p className="leading-relaxed">Keep Z1/Z2 easy volume high to expand mitochondial density. Avoid running at tempo speed on rest days.</p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

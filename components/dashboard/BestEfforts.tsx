@@ -20,7 +20,7 @@ export default function BestEfforts({ bestEfforts }: BestEffortsProps) {
         <Award className="h-4.5 w-4.5 text-accent-warm" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {distanceKeys.map(key => {
           const effort = bestEfforts[key];
 
@@ -28,13 +28,13 @@ export default function BestEfforts({ bestEfforts }: BestEffortsProps) {
             return (
               <div
                 key={key}
-                className="bg-bg-elevated border border-border-subtle p-4 rounded-xl flex flex-col justify-between h-32 opacity-40"
+                className="bg-bg-elevated border border-border-subtle p-4 rounded-xl flex flex-col justify-between min-h-[160px] opacity-40"
               >
                 <div>
                   <span className="text-[10px] text-text-muted font-mono uppercase tracking-wider">{key}</span>
                   <p className="text-xl font-mono font-bold text-text-muted mt-2">--:--</p>
                 </div>
-                <span className="text-[9px] text-text-muted font-mono">NOT MET YET</span>
+                <span className="text-[9px] text-text-muted font-mono mt-auto pt-3">NOT MET YET</span>
               </div>
             );
           }
@@ -42,31 +42,28 @@ export default function BestEfforts({ bestEfforts }: BestEffortsProps) {
           return (
             <div
               key={key}
-              className="bg-bg-elevated border border-border-primary p-4 rounded-xl flex flex-col justify-between h-32 hover:border-border-hover hover:bg-bg-card-hover transition-all duration-300 relative overflow-hidden group"
+              className="bg-bg-elevated border border-border-primary p-4 rounded-xl flex flex-col justify-between min-h-[160px] hover:border-border-hover hover:bg-bg-card-hover transition-colors duration-200 group"
             >
-              {/* Subtle warm accent dot */}
-              <div className="absolute -right-2 -top-2 w-6 h-6 bg-accent-warm/10 rounded-full group-hover:scale-[2] transition-transform duration-500 pointer-events-none" />
-
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-muted font-mono uppercase tracking-wider">{key}</span>
-                  <Flame className="h-3 w-3 text-accent-warm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Flame className="h-3 w-3 text-accent-warm opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </div>
 
-                <p className="text-2xl font-mono font-bold text-text-primary mt-1">
+                <p className="text-2xl font-mono font-bold text-text-primary mt-2">
                   {formatDuration(Math.round(effort.timeSeconds))}
                 </p>
 
-                <p className="text-xs font-mono text-accent-cool mt-0.5">
+                <p className="text-xs font-mono text-accent-cool mt-1">
                   {speedToPaceMinKm(effort.paceMps)} <span className="text-[9px] text-text-muted font-normal">/ km</span>
                 </p>
               </div>
 
-              <div className="border-t border-border-subtle pt-2 mt-2">
-                <p className="text-[9px] text-text-primary truncate max-w-full font-medium" title={effort.activityName}>
+              <div className="border-t border-border-subtle pt-3 mt-3">
+                <p className="text-[9px] text-text-primary truncate font-medium" title={effort.activityName}>
                   {effort.activityName}
                 </p>
-                <div className="flex items-center space-x-1 text-text-muted text-[8px] font-mono mt-0.5">
+                <div className="flex items-center space-x-1 text-text-muted text-[8px] font-mono mt-1">
                   <Calendar className="h-2.5 w-2.5 shrink-0" />
                   <span>
                     {new Date(effort.date).toLocaleDateString('en-US', {
