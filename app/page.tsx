@@ -282,7 +282,7 @@ export default function DashboardHome() {
             <BestEfforts bestEfforts={metrics.bestEfforts} />
 
             {/* 5. Detailed Logs Table */}
-            <RecentActivities activities={metrics.recentActivities} />
+            <RecentActivities activities={metrics.recentActivities} isDemo={isDemo} />
 
           </div>
         )}

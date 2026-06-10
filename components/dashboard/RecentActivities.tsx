@@ -1,13 +1,14 @@
 'use client';
 
 import { ActivityData, speedToPaceMinKm, formatDuration } from '@/lib/strava-calculations';
-import { Calendar, Heart, ShieldAlert } from 'lucide-react';
+import { Calendar, Heart, ShieldAlert, FileSpreadsheet, Download } from 'lucide-react';
 
 interface RecentActivitiesProps {
   activities: ActivityData[];
+  isDemo?: boolean;
 }
 
-export default function RecentActivities({ activities }: RecentActivitiesProps) {
+export default function RecentActivities({ activities, isDemo = false }: RecentActivitiesProps) {
   const runs = activities.filter(a => a.type === 'Run');
 
   if (runs.length === 0) {
@@ -22,10 +23,32 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
 
   return (
     <div className="dash-card p-6">
-      <h2 className="section-title mb-6 flex items-center gap-3">
-        Recent Activity Logs
-        <span className="badge">RUNNING LOGS</span>
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h2 className="section-title flex items-center gap-3">
+          Recent Activity Logs
+          <span className="badge">RUNNING LOGS</span>
+        </h2>
+        <div className="flex items-center space-x-2">
+          <a
+            href={`/api/export?format=csv${isDemo ? '&demo=true' : ''}`}
+            className="px-3 py-1.5 rounded-lg border border-border-primary hover:border-border-hover bg-bg-elevated text-text-secondary hover:text-accent-warm transition-all text-[11px] font-mono flex items-center gap-1.5"
+            title="Download all activities as a CSV spreadsheet"
+            download
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5 text-text-muted group-hover:text-accent-warm" />
+            <span>Export CSV</span>
+          </a>
+          <a
+            href={`/api/export?format=json${isDemo ? '&demo=true' : ''}`}
+            className="px-3 py-1.5 rounded-lg border border-border-primary hover:border-border-hover bg-bg-elevated text-text-secondary hover:text-accent-warm transition-all text-[11px] font-mono flex items-center gap-1.5"
+            title="Download full JSON database backup (contains original Strava rawData)"
+            download
+          >
+            <Download className="h-3.5 w-3.5 text-text-muted group-hover:text-accent-warm" />
+            <span>Export Backup (JSON)</span>
+          </a>
+        </div>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs font-mono">

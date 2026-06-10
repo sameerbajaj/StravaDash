@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, LogOut, ShieldAlert, Sun, Moon } from 'lucide-react';
+import { RefreshCw, LogOut, ShieldAlert, Sun, Moon, Download, FileSpreadsheet } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 
 interface AthleteProfile {
@@ -127,6 +127,26 @@ export default function DashboardHeader({
                   <RefreshCw className="h-4 w-4" />
                 </button>
               )}
+
+              {/* Export CSV */}
+              <a
+                href={`/api/export?format=csv${isDemo ? '&demo=true' : ''}`}
+                className="p-2 rounded-lg border border-border-primary hover:border-border-hover bg-bg-elevated text-text-secondary hover:text-accent-warm transition-all flex items-center justify-center"
+                title="Export all activities as CSV"
+                download
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+              </a>
+
+              {/* Export JSON Backup */}
+              <a
+                href={`/api/export?format=json${isDemo ? '&demo=true' : ''}`}
+                className="p-2 rounded-lg border border-border-primary hover:border-border-hover bg-bg-elevated text-text-secondary hover:text-accent-warm transition-all flex items-center justify-center"
+                title="Export raw data as JSON (Backup)"
+                download
+              >
+                <Download className="h-4 w-4" />
+              </a>
 
               {/* Disconnect / Logout */}
               <button
