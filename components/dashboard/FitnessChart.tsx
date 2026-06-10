@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { FitnessDay } from '@/lib/strava-calculations';
 import { Shield, Sparkles, AlertCircle } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface FitnessChartProps {
 }
 
 export default function FitnessChart({ timeline }: FitnessChartProps) {
+  const [rangeDays, setRangeDays] = useState<number | 'all'>(90);
   const [hoveredDay, setHoveredDay] = useState<FitnessDay | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,15 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
     );
   }
 
+  // Filter timeline based on selected date range
+  const filteredTimeline = useMemo(() => {
+    if (rangeDays === 'all') return timeline;
+    return timeline.slice(-rangeDays);
+  }, [timeline, rangeDays]);
+
+  // Ensure hovered day exists in the current view range
+  const isHoveredDayInFiltered = hoveredDay && filteredTimeline.includes(hoveredDay);
+
   // Dimensions
   const svgWidth = 1000;
   const svgHeight = 300;
@@ -34,10 +44,10 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
   const width = svgWidth - paddingLeft - paddingRight;
   const height = svgHeight - paddingTop - paddingBottom;
 
-  // Find min/max values to scale Y axis
-  const ctlValues = timeline.map(d => d.ctl);
-  const atlValues = timeline.map(d => d.atl);
-  const tsbValues = timeline.map(d => d.tsb);
+  // Find min/max values of filtered data to scale Y axis dynamically
+  const ctlValues = filteredTimeline.map(d => d.ctl);
+  const atlValues = filteredTimeline.map(d => d.atl);
+  const tsbValues = filteredTimeline.map(d => d.tsb);
 
   const maxVal = Math.max(...ctlValues, ...atlValues, 20) * 1.1;
   const minVal = Math.min(...tsbValues, -20) * 1.1;
@@ -45,7 +55,7 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
 
   // Scale Functions
   const getX = (index: number) => {
-    return paddingLeft + (index / (timeline.length - 1)) * width;
+    return paddingLeft + (index / (filteredTimeline.length - 1)) * width;
   };
 
   const getY = (value: number) => {
@@ -57,7 +67,7 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
   let atlPath = '';
   let tsbAreaPath = '';
 
-  timeline.forEach((day, index) => {
+  filteredTimeline.forEach((day, index) => {
     const x = getX(index);
     const yCtl = getY(day.ctl);
     const yAtl = getY(day.atl);
@@ -75,9 +85,9 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
     }
   });
 
-  // Complete the TSB Area path to close it along the y=0 line
-  if (timeline.length > 0) {
-    const lastX = getX(timeline.length - 1);
+  // Close the TSB Area path to close it along the y=0 line
+  if (filteredTimeline.length > 0) {
+    const lastX = getX(filteredTimeline.length - 1);
     const firstX = getX(0);
     const yZero = getY(0);
     tsbAreaPath += ` L ${lastX} ${yZero} L ${firstX} ${yZero} Z`;
@@ -103,14 +113,36 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
 
     // Map svgMouseX back to timeline index
     const relativeX = (svgMouseX - paddingLeft) / width;
-    const index = Math.max(0, Math.min(timeline.length - 1, Math.round(relativeX * (timeline.length - 1))));
+    const index = Math.max(0, Math.min(filteredTimeline.length - 1, Math.round(relativeX * (filteredTimeline.length - 1))));
 
-    const day = timeline[index];
+    const day = filteredTimeline[index];
     setHoveredDay(day);
 
-    // Tooltip position (keep within boundaries)
-    const clientX = mouseX + 15;
-    const clientY = mouseY - 60;
+    // Dynamic Tooltip bounds protection (prevents overflow cutting off on right/bottom)
+    const tooltipWidth = 192; // equivalent to w-48 (12rem)
+    const tooltipHeight = 145;
+
+    let clientX = mouseX + 15;
+    let clientY = mouseY - 65;
+
+    // Shift tooltip to the left of the cursor if it hits the right edge of the card
+    if (clientX + tooltipWidth > rect.width) {
+      clientX = mouseX - tooltipWidth - 15;
+    }
+    // Clamp to left boundary
+    if (clientX < 10) {
+      clientX = 10;
+    }
+
+    // Adjust if overflowing top boundary
+    if (clientY < 10) {
+      clientY = mouseY + 15;
+    }
+    // Adjust if overflowing bottom boundary
+    if (clientY + tooltipHeight > rect.height) {
+      clientY = rect.height - tooltipHeight - 10;
+    }
+
     setTooltipPos({ x: clientX, y: clientY });
   };
 
@@ -118,12 +150,12 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
     setHoveredDay(null);
   };
 
-  // Select labels for X axis
-  const labelInterval = Math.ceil(timeline.length / 5);
+  // Select labels for X axis based on data size
+  const labelInterval = Math.max(1, Math.ceil(filteredTimeline.length / 5));
 
   return (
     <div ref={containerRef} className="dash-card p-6 relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <div>
           <h2 className="section-title flex items-center gap-2">
             Fitness, Fatigue & Form <span className="badge">Banister Model</span>
@@ -133,24 +165,47 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center space-x-4 text-[10px] font-mono mt-4 md:mt-0">
-          <div className="flex items-center space-x-1.5">
-            <span className="h-[3px] w-4 rounded-full" style={{ background: 'var(--chart-fitness)' }} />
-            <span className="text-text-secondary">Fitness (CTL)</span>
+        {/* Range Selector & Legends */}
+        <div className="flex flex-col sm:flex-row lg:flex-col sm:items-center lg:items-end justify-between gap-4 mt-2 lg:mt-0">
+          {/* Time range selection controls */}
+          <div className="flex items-center space-x-1 bg-bg-elevated p-1 rounded-lg border border-border-primary text-[10px] font-mono">
+            {([30, 90, 180, 365, 'all'] as const).map(days => (
+              <button
+                key={days}
+                onClick={() => {
+                  setRangeDays(days);
+                  setHoveredDay(null); // Clear hover to avoid indexing issues
+                }}
+                className={`px-2.5 py-1 rounded transition-all font-semibold cursor-pointer ${
+                  rangeDays === days
+                    ? 'bg-accent-warm text-text-inverse shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {days === 'all' ? 'ALL' : days === 365 ? '1Y' : days === 180 ? '6M' : days === 90 ? '90D' : '30D'}
+              </button>
+            ))}
           </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="h-[3px] w-4 rounded-full" style={{ background: 'var(--chart-fatigue)' }} />
-            <span className="text-text-secondary">Fatigue (ATL)</span>
-          </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="h-[3px] w-4 rounded-full bg-text-muted/30" />
-            <span className="text-text-secondary">Form (TSB)</span>
+
+          {/* Legend indicators */}
+          <div className="flex items-center space-x-4 text-[10px] font-mono">
+            <div className="flex items-center space-x-1.5">
+              <span className="h-[3px] w-4 rounded-full" style={{ background: 'var(--chart-fitness)' }} />
+              <span className="text-text-secondary">Fitness (CTL)</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="h-[3px] w-4 rounded-full" style={{ background: 'var(--chart-fatigue)' }} />
+              <span className="text-text-secondary">Fatigue (ATL)</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="h-[3px] w-4 rounded-full bg-text-muted/30" />
+              <span className="text-text-secondary">Form (TSB)</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* SVG Canvas */}
+      {/* SVG Canvas wrapper */}
       <div className="relative">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -226,8 +281,8 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
           />
 
           {/* X Axis Date Labels */}
-          {timeline.map((day, idx) => {
-            if (idx % labelInterval === 0 || idx === timeline.length - 1) {
+          {filteredTimeline.map((day, idx) => {
+            if (idx % labelInterval === 0 || idx === filteredTimeline.length - 1) {
               const x = getX(idx);
               const formattedDate = new Date(day.date).toLocaleDateString('en-US', {
                 month: 'short',
@@ -251,11 +306,11 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
           })}
 
           {/* Hover Crosshair vertical bar */}
-          {hoveredDay && (
+          {hoveredDay && isHoveredDayInFiltered && (
             <line
-              x1={getX(timeline.indexOf(hoveredDay))}
+              x1={getX(filteredTimeline.indexOf(hoveredDay))}
               y1={paddingTop}
-              x2={getX(timeline.indexOf(hoveredDay))}
+              x2={getX(filteredTimeline.indexOf(hoveredDay))}
               y2={svgHeight - paddingBottom}
               stroke="var(--text-muted)"
               strokeDasharray="2 2"
@@ -265,10 +320,10 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
           )}
 
           {/* Hover Node Dots */}
-          {hoveredDay && (
+          {hoveredDay && isHoveredDayInFiltered && (
             <>
               <circle
-                cx={getX(timeline.indexOf(hoveredDay))}
+                cx={getX(filteredTimeline.indexOf(hoveredDay))}
                 cy={getY(hoveredDay.ctl)}
                 r="4"
                 fill="var(--chart-fitness)"
@@ -276,7 +331,7 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
                 strokeWidth="2"
               />
               <circle
-                cx={getX(timeline.indexOf(hoveredDay))}
+                cx={getX(filteredTimeline.indexOf(hoveredDay))}
                 cy={getY(hoveredDay.atl)}
                 r="4"
                 fill="var(--chart-fatigue)"
@@ -288,9 +343,9 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
         </svg>
 
         {/* Dynamic Tooltip Element */}
-        {hoveredDay && (
+        {hoveredDay && isHoveredDayInFiltered && (
           <div
-            className="absolute z-10 pointer-events-none dash-card p-3 w-48"
+            className="absolute z-10 pointer-events-none dash-card p-3 w-48 bg-bg-card/95 backdrop-blur-sm border border-border-primary"
             style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
           >
             <p className="border-b border-border-primary pb-1 mb-1 text-text-muted font-mono font-semibold text-xs">
@@ -324,7 +379,7 @@ export default function FitnessChart({ timeline }: FitnessChartProps) {
       </div>
 
       {/* Selected Day Status Dashboard */}
-      {hoveredDay ? (
+      {hoveredDay && isHoveredDayInFiltered ? (
         <div className={`mt-4 border rounded-lg p-3 flex items-center justify-between text-xs transition-all ${getFormStatus(hoveredDay.tsb).color}`}>
           <div className="flex items-center space-x-2">
             <Shield className="h-4 w-4" />

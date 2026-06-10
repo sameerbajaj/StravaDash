@@ -84,7 +84,7 @@ function getMockDashboardData() {
       recentActivities,
       bestEfforts,
       predictions,
-      fitnessTimeline: fitnessTimeline.slice(-60), // Return last 60 days
+      fitnessTimeline: fitnessTimeline,
       hrDistribution,
     }
   };
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
         recentActivities,
         bestEfforts,
         predictions,
-        fitnessTimeline: fitnessTimeline.slice(-90), // Return last 90 days for clarity
+        fitnessTimeline: fitnessTimeline,
         hrDistribution,
       }
     });
