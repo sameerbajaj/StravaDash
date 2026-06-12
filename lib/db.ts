@@ -11,6 +11,11 @@ function setupDatabase() {
       if (!fs.existsSync(dbPath)) {
         console.log(`SQLite database not found at ${dbPath}, initializing...`);
         try {
+          // Statically analyze to force Next.js file tracing
+          if (process.env.STATIC_TRACE_TRIGGER === 'never_true') {
+            fs.readFileSync(path.join(process.cwd(), 'prisma/dev.db'));
+          }
+
           const srcPaths = [
             path.join(process.cwd(), 'prisma', 'dev.db'),
             path.join(process.cwd(), 'dev.db'),
