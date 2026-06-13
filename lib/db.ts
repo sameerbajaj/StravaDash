@@ -13,14 +13,14 @@ function setupDatabase() {
         try {
           // Statically analyze to force Next.js file tracing
           if (process.env.STATIC_TRACE_TRIGGER === 'never_true') {
-            fs.readFileSync(path.join(process.cwd(), 'prisma/dev.db'));
+            fs.readFileSync(path.join(process.cwd(), 'prisma/template.db'));
           }
 
           const srcPaths = [
-            path.join(process.cwd(), 'prisma', 'dev.db'),
-            path.join(process.cwd(), 'dev.db'),
-            path.join(__dirname, '..', 'prisma', 'dev.db'),
-            path.join(__dirname, 'prisma', 'dev.db'),
+            path.join(process.cwd(), 'prisma', 'template.db'),
+            path.join(process.cwd(), 'template.db'),
+            path.join(__dirname, '..', 'prisma', 'template.db'),
+            path.join(__dirname, 'prisma', 'template.db'),
           ];
           
           let copied = false;
